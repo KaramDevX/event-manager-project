@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import json
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, date
@@ -194,3 +193,21 @@ manager.save_events()
 other = EventManager("task10_events.json")
 other.load_events()
 print(other.list_events())
+
+class ReceiptProcessor:
+    def process(self, data):
+        # Data Integrity: Check for essential metadata [cite: 13]
+        if "item" not in data or "qty" not in data or "price" not in data:
+            raise KeyError("Essential receipt metadata is missing")
+        
+        # Type Safety: Ensure numeric values [cite: 11]
+        if not isinstance(data.get("qty"), (int, float)) or not isinstance(data.get("price"), (int, float)):
+            raise TypeError("Quantity and Price must be numeric")
+            
+        # Constraint Validation: Non-negative prices [cite: 12]
+        if data["price"] < 0:
+            raise ValueError("Price cannot be negative")
+            
+        # Standard Mapping and Calculation [cite: 8]
+        total = data["qty"] * data["price"]
+        return {"status": "success", "total": total}
