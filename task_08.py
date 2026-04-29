@@ -122,12 +122,20 @@ class EventManager:
             raise EventManagerError("Start date cannot be later than end date.")
         return sorted([event for event in self.events if start <= self.parse_date(event.date) <= end], key=lambda e: self.parse_date(e.date))
 
-    def search_event_by_name(self, query: str):
-        query = query.strip().lower()
-        if not query:
+        def search_event_by_name(self, query: str):
+        # validate type and emptiness first
+        if not isinstance(query, str) or not query.strip():
             raise EventManagerError("Search query cannot be empty.")
-        return sorted([event for event in self.events if query in event.name.lower()], key=lambda e: (e.name.lower().find(query), e.name.lower()))
 
+        query = query.strip().lower()
+        return sorted(
+            [
+                event
+                for event in self.events
+                if query in event.name.lower()
+            ],
+            key=lambda e: (e.name.lower().find(query), e.name.lower()),
+        )
     def capacity_bar(self, registered: int, capacity: int, width: int = 20):
         filled = round((registered / capacity) * width) if capacity else 0
         return "#" * filled + "-" * (width - filled)
