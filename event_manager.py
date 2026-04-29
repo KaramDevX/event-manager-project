@@ -56,6 +56,8 @@ class EventManager:
         return capacity
 
     def validate_email(self, email: str):
+        if email is None:
+            raise EventManagerError("Email cannot be None.")
         email = email.strip().lower()
         if "@" not in email or "." not in email:
             raise EventManagerError("Invalid email address.")
@@ -86,6 +88,8 @@ class EventManager:
     def register_attendee(self, event_id: int, name: str, email: str):
         event = self.find_event(event_id)
         email = self.validate_email(email)
+        if name is None:
+            raise EventManagerError("Attendee name cannot be None.")
         if not name.strip():
             raise EventManagerError("Attendee name cannot be empty.")
         if any(att.email == email for att in event.attendees):
