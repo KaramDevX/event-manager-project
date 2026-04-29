@@ -1,0 +1,303 @@
+feature_7_filter_events_by_date:
+  description: >
+    filter_events_by_date(events, start_date, end_date) returns all events whose
+    date is between start_date and end_date (inclusive), sorted by date.
+    Dates are strings in YYYY-MM-DD format. Invalid ranges or malformed dates
+    raise EventManagerError.
+  input_output_tests:
+    - id: TC7-1
+      events:
+        - {id: E1, date: "2026-04-10"}
+        - {id: E2, date: "2026-04-15"}
+        - {id: E3, date: "2026-05-01"}
+      range:
+        start_date: "2026-04-01"
+        end_date: "2026-04-30"
+      expected_output_event_ids: [E1, E2]
+
+    - id: TC7-2
+      events:
+        - {id: E1, date: "2026-04-10"}
+        - {id: E2, date: "2026-04-15"}
+        - {id: E3, date: "2026-05-01"}
+      range:
+        start_date: "2026-04-10"
+        end_date: "2026-04-10"
+      expected_output_event_ids: [E1]
+
+    - id: TC7-3
+      events:
+        - {id: E1, date: "2026-04-10"}
+        - {id: E2, date: "2026-04-15"}
+      range:
+        start_date: "2026-03-01"
+        end_date: "2026-05-31"
+      expected_output_event_ids: [E1, E2]
+
+    - id: TC7-4
+      events:
+        - {id: E1, date: "2026-04-10"}
+        - {id: E2, date: "2026-04-15"}
+      range:
+        start_date: "2026-06-01"
+        end_date: "2026-06-30"
+      expected_output_event_ids: []
+
+    - id: TC7-5
+      events:
+        - {id: E1, date: "2026-04-10"}
+        - {id: E2, date: "2026-04-15"}
+        - {id: E3, date: "2026-04-20"}
+      range:
+        start_date: "2026-04-11"
+        end_date: "2026-04-19"
+      expected_output_event_ids: [E2]
+
+    - id: TC7-6
+      events:
+        - {id: E1, date: "2026-04-10"}
+        - {id: E2, date: "2026-04-10"}
+      range:
+        start_date: "2026-04-10"
+        end_date: "2026-04-10"
+      expected_output_event_ids: [E1, E2]
+
+    - id: TC7-7
+      events: []
+      range:
+        start_date: "2026-04-01"
+        end_date: "2026-04-30"
+      expected_output_event_ids: []
+
+  edge_tests:
+    - id: EC7-1
+      events:
+        - {id: E1, date: "2020-01-01"}
+        - {id: E2, date: "2026-04-10"}
+        - {id: E3, date: "2030-12-31"}
+      range:
+        start_date: "1900-01-01"
+        end_date: "2100-12-31"
+      expected_output_event_ids: [E1, E2, E3]
+
+    - id: EC7-2
+      events:
+        - {id: E1, date: "2026-04-11"}
+      range:
+        start_date: "2026-04-10"
+        end_date: "2026-04-10"
+      expected_output_event_ids: []
+
+    - id: EC7-3
+      events:
+        - {id: E1, date: "2026-04-01"}
+        - {id: E2, date: "2026-04-30"}
+      range:
+        start_date: "2026-04-01"
+        end_date: "2026-04-30"
+      expected_output_event_ids: [E1, E2]
+
+  error_tests:
+    - id: EH7-1
+      range:
+        start_date: "2026-05-10"
+        end_date: "2026-04-01"
+      expected_exception: EventManagerError
+      reason: start_date_after_end_date
+
+    - id: EH7-2
+      range:
+        start_date: "10-04-2026"
+        end_date: "2026-04-30"
+      expected_exception: EventManagerError
+      reason: invalid_start_date_format
+
+    - id: EH7-3
+      range:
+        start_date: "2026-04-01"
+        end_date: "30-04-2026"
+      expected_exception: EventManagerError
+      reason: invalid_end_date_format
+
+    - id: EH7-4
+      range:
+        start_date: ""
+        end_date: "2026-04-30"
+      expected_exception: EventManagerError
+      reason: empty_start_date
+
+
+feature_8_search_event_by_name:
+  description: >
+    search_event_by_name(events, query) returns all events whose name matches
+    the query as a case-insensitive substring. Empty or non-string queries
+    raise EventManagerError.
+  input_output_tests:
+    - id: TC8-1
+      events:
+        - {name: "Tech Conference"}
+        - {name: "Music Festival"}
+        - {name: "Art Expo"}
+      query: "Tech"
+      expected_names: ["Tech Conference"]
+
+    - id: TC8-2
+      events:
+        - {name: "Tech Conference"}
+        - {name: "Tech Meetup"}
+      query: "tech"
+      expected_names: ["Tech Conference", "Tech Meetup"]
+
+    - id: TC8-3
+      events:
+        - {name: "Tech Conference"}
+        - {name: "Music Festival"}
+      query: "Festival"
+      expected_names: ["Music Festival"]
+
+    - id: TC8-4
+      events:
+        - {name: "Tech Conference"}
+        - {name: "Music Festival"}
+      query: "Game"
+      expected_names: []
+
+    - id: TC8-5
+      events: []
+      query: "Tech"
+      expected_names: []
+
+  edge_tests:
+    - id: EC8-1
+      events:
+        - {name: "T"}
+        - {name: "Tech"}
+        - {name: "Big Tech Fair"}
+      query: "T"
+      expected_names: ["T", "Tech", "Big Tech Fair"]
+
+    - id: EC8-2
+      events:
+        - {name: "Tech Conference"}
+      query: "TECH CONFERENCE"
+      expected_names: ["Tech Conference"]
+
+    - id: EC8-3
+      events:
+        - {name: "Tech Conference 2026"}
+        - {name: "Tech Conference 2027"}
+      query: "2026"
+      expected_names: ["Tech Conference 2026"]
+
+  error_tests:
+    - id: EH8-1
+      query: ""
+      expected_exception: EventManagerError
+      reason: empty_query
+
+    - id: EH8-2
+      query: null
+      expected_exception: EventManagerError
+      reason: non_string_query
+
+    - id: EH8-3
+      query: 123
+      expected_exception: EventManagerError
+      reason: non_string_query
+
+
+feature_9_show_event_capacity:
+  description: >
+    show_event_capacity(event_id) returns a dictionary with event_name,
+    capacity, registered, available_slots and a visual string describing
+    usage. Invalid or unknown event_id raises EventManagerError.
+  input_output_tests:
+    - id: TC9-1
+      event:
+        name: "Tech Conference"
+        capacity: 100
+        registered: 0
+      expected:
+        event_name: "Tech Conference"
+        capacity: 100
+        registered: 0
+        available_slots: 100
+
+    - id: TC9-2
+      event:
+        name: "Tech Conference"
+        capacity: 100
+        registered: 3
+      expected:
+        capacity: 100
+        registered: 3
+        available_slots: 97
+
+    - id: TC9-3
+      event:
+        name: "Music Festival"
+        capacity: 2
+        registered: 2
+      expected:
+        capacity: 2
+        registered: 2
+        available_slots: 0
+
+    - id: TC9-4
+      event:
+        name: "Workshop"
+        capacity: 1
+        registered: 1
+      expected:
+        capacity: 1
+        registered: 1
+        available_slots: 0
+        visual_present: true
+
+  edge_tests:
+    - id: EC9-1
+      event:
+        name: "Small Meetup"
+        capacity: 1
+        registered: 0
+      expected:
+        capacity: 1
+        registered: 0
+        available_slots: 1
+
+    - id: EC9-2
+      event:
+        name: "Huge Expo"
+        capacity: 1000000
+        registered: 5
+      expected:
+        capacity: 1000000
+        registered: 5
+        available_slots: 999995
+
+    - id: EC9-3
+      event:
+        name: "Zero Registered"
+        capacity: 50
+        registered: 0
+      expected:
+        capacity: 50
+        registered: 0
+        available_slots: 50
+        visual_present: true
+
+  error_tests:
+    - id: EH9-1
+      event_id: 9999
+      expected_exception: EventManagerError
+      reason: event_not_found
+
+    - id: EH9-2
+      event_id: null
+      expected_exception: EventManagerError
+      reason: invalid_id
+
+    - id: EH9-3
+      event_id: -1
+      expected_exception: EventManagerError
+      reason: invalid_id
