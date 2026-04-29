@@ -122,8 +122,8 @@ class EventManager:
             raise EventManagerError("Start date cannot be later than end date.")
         return sorted([event for event in self.events if start <= self.parse_date(event.date) <= end], key=lambda e: self.parse_date(e.date))
 
-        def search_event_by_name(self, query: str):
-        # validate type and emptiness first
+    def search_event_by_name(self, query: str):
+    # validate type and emptiness first
         if not isinstance(query, str) or not query.strip():
             raise EventManagerError("Search query cannot be empty.")
 
